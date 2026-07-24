@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Theories Concept Map</title>
+<style>
+  :root {
+    --ink: #2d3142;
+    --muted: #6b7080;
+    --bg: #f7f6f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  header {
+    text-align: center;
+    padding: 26px 16px 4px;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 1.55rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  header p.intro {
+    max-width: 860px;
+    margin: 0 auto 10px;
+    text-align: left;
+    color: #3a3f52;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  header p.clickHint {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  #mapWrap {
+    position: relative;
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 8px 12px 30px;
+  }
+  svg { width: 100%; height: auto; display: block; }
+
+  .edge {
+    fill: none;
+    stroke: #b9bdc9;
+    stroke-width: 2;
+    transition: stroke 0.15s, stroke-width 0.15s;
+  }
+  .edge.active { stroke: #4a5578; stroke-width: 3.5; }
+
+  .node rect {
+    stroke-width: 2.5;
+    rx: 14;
+    filter: drop-shadow(0 2px 3px rgba(45,49,66,0.18));
+    transition: stroke-width 0.15s;
+  }
+  .node text {
+    font-size: 17px;
+    font-weight: 600;
+    fill: var(--ink);
+    text-anchor: middle;
+    pointer-events: none;
+  }
+  .node.active rect { stroke-width: 5; }
+
+  .btn { cursor: pointer; }
+  .btn circle {
+    fill: #ffffff;
+    stroke: #5b6486;
+    stroke-width: 2.25;
+    transition: fill 0.15s, transform 0.15s;
+  }
+  .btn text {
+    font-size: 19px;
+    font-weight: 700;
+    fill: #5b6486;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+  .btn:hover circle { fill: #eef1fa; }
+  .btn.open circle { fill: #4a5578; stroke: #4a5578; }
+  .btn.open text { fill: #ffffff; }
+
+  #popup {
+    position: absolute;
+    display: none;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    background: #ffffff;
+    border: 1px solid #d8d9e0;
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(45,49,66,0.22);
+    padding: 14px 16px 15px;
+    z-index: 10;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  #popup h3 {
+    margin: 0 26px 7px 0;
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  #popup p { margin: 0; color: #3a3f52; }
+  #popupClose {
+    position: absolute;
+    top: 8px; right: 10px;
+    border: none;
+    background: none;
+    font-size: 1.15rem;
+    line-height: 1;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  #popupClose:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Exploring Learning Theory Connections Through the Lens of Public Speaking</h1>
+  <p class="intro">The connections in this concept map are based on ideas and approaches accumulated over 20 years of teaching public speaking.</p>
+  <p class="intro">Novice public speakers tend to focus on form (Where do I look? What do I do with my hands? etc.) more than on content (Why does what I’m saying matter to the people I’m saying it to?) because they assume that the content is just the already-determined details of the information they’re going to present. But people don’t crave information, they crave meaning. Strong form flows from a personal connection to what is meaningful in the content. When a speaker is focused on delivering content they believe is meaningful, their form changes because the feeling that they are offering something of value to their audience naturally leads them to engage in effective speaker behaviours like smiling, making eye contact, and using open-handed gestures. Given enough practice, anyone can significantly improve their public speaking skills.</p>
+  <p class="clickHint">Click the (+) button on a connection line to read how the theories relate in the context of public speaking.</p>
+</header>
+
+<div id="mapWrap">
+  <svg id="map" viewBox="0 0 1000 900" xmlns="http://www.w3.org/2000/svg">
+    <g id="edges"></g>
+    <g id="nodesG"></g>
+    <g id="btns"></g>
+  </svg>
+  <div id="popup" role="dialog" aria-modal="false">
+    <button id="popupClose" aria-label="Close">&#10005;</button>
+    <h3 id="popupTitle"></h3>
+    <p id="popupText"></p>
+  </div>
+</div>
+
+<script>
+const CX = 500, CY = 450, R = 330;
+function vertex(deg) {
+  const a = deg * Math.PI / 180;
+  return { x: CX + R * Math.cos(a), y: CY - R * Math.sin(a) };
+}
+
+const nodes = {
+  ns:  { ...vertex(90),   label: ["Neuroscience"],               fill: "#e8d5f2", stroke: "#8e5aa8" },
+  cc:  { ...vertex(30),   label: ["Cognitive", "Constructivism"],fill: "#d4ecd9", stroke: "#3f8d55" },
+  sc:  { ...vertex(-30),  label: ["Social", "Constructivism"],   fill: "#f6d7d4", stroke: "#c05b52" },
+  sct: { ...vertex(-90),  label: ["Social Cognitive", "Theory"], fill: "#fdeec9", stroke: "#c0902c" },
+  cog: { ...vertex(-150), label: ["Cognitivism"],                fill: "#d6e6f5", stroke: "#3c6ea5" },
+  beh: { ...vertex(150),  label: ["Behaviourism"],               fill: "#fbe0c8", stroke: "#c96f2c" }
+};
+
+/* Triad centroid: Behaviourism, Neuroscience, Cognitive Constructivism */
+const TRI = {
+  x: (nodes.beh.x + nodes.ns.x + nodes.cc.x) / 3,
+  y: (nodes.beh.y + nodes.ns.y + nodes.cc.y) / 3
+};
+
+/* bow: perpendicular offset for curved edges (opposite-vertex diagonals) */
+const edges = [
+  { a:"beh", b:"cc",
+    title:"Behaviourism ↔ Cognitive Constructivism",
+    text:"Speakers need to learn how to construct and deliver a presentation grounded in what is meaningful to them before they attempt behavioural refinements. Learning specific “effective speaker” behaviours is the finishing polish that comes after an audience-engagement orientation has been constructed through experience." },
+  { a:"beh", b:"cog",
+    title:"Behaviourism ↔ Cognitivism",
+    text:"Behaviour-first instruction (e.g. telling inexperienced speakers to ape the behaviours of polished speakers) fails because attention focused on physical gestures and eye contact crowds out knowledge retrieval and processing of cues from the audience. Focusing on engaging in effective public speaking behaviours (e.g. eye contact and open-handed gestures) is helpful when reviewing performance (e.g. watching a recording of yourself speaking) but harmful during performance." },
+  { a:"beh", b:"ns",
+    title:"Behaviourism ↔ Neuroscience",
+    text:"Inexperienced speakers often want to be given behavioural rules rather than learning experientially, because rule-following reduces uncertainty. Uncertainty activates the amygdala’s threat-detection response, heightening the fear stimulus associated with inexperienced presenting. A rule-based approach lowers physiological arousal, resulting in relief that acts as negative reinforcement, strengthening the neural connection between rule-following and fear reduction. This process engages the habit-formation circuits of the basal ganglia, entrenching rigid, rule-driven speaking behaviours. Avoiding giving inexperienced speakers behavioural rules gives them a chance to use the pre-frontal cortex’s capacity for flexible, context-aware processing to build speaking behaviours that rely on adaptive neural pathways." },
+  { a:"beh", b:"sct",
+    title:"Behaviourism ↔ Social Cognitive Theory",
+    text:"Persisting through the initial struggle with anxiety has no reward signal because behaviour and reward are too far apart to produce reinforcement learning. Forethought about future outcomes (e.g. being able to deliver something of value to an audience) provides a basis for engaging in self-regulation. Modeling good speakers means abstracting and applying principles, not copying outward behaviours." },
+  { a:"beh", b:"sc", bow: 110,
+    title:"Behaviourism ↔ Social Constructivism",
+    text:"Once experience in the zone of proximal development has built a base of skill and confidence, behavioural refinement through reviewing recordings and receiving feedback reinforces effective speaking habits." },
+  { a:"cc", b:"cog", bow: -110,
+    title:"Cognitive Constructivism ↔ Cognitivism",
+    text:"Constructed experience leads to the creation of schemas over successive repetitions. Those schemas free up working memory and enable chunking so the speaker can identify and store more new learning in the midst of practice or when reviewing a recording later. Elaboration requires experience to attach new information to, so technical instruction is helpful only after the speaker has had some practice doing." },
+  { a:"cc", b:"ns",
+    title:"Cognitive Constructivism ↔ Neuroscience",
+    text:"Repeated practice strengthens synaptic connections and unused connections are pruned. Ongoing public speaking practice is important not only to build a strong schema but to maintain the neural connections that schema is woven into." },
+  { a:"cc", b:"sct",
+    title:"Cognitive Constructivism ↔ Social Cognitive Theory",
+    text:"Each presentation constructs the speaker’s schema through experience and serves as evidence that builds self-efficacy, but a speaker’s level of self-efficacy determines whether they remain willing to experience disequilibrium. A speaker who doesn’t believe they are capable will avoid going through exactly the experiences construction requires, while a speaker who does believe they are capable will use forethought about a successful outcome to sustain them through the disequilibrium." },
+  { a:"cc", b:"sc",
+    title:"Cognitive Constructivism ↔ Social Constructivism",
+    text:"The speaker starts with something that is meaningful to them and then they co-construct meaning with the audience. Regular practice doing low-stakes presentations keeps speakers in the zone of proximal development, which is where disequilibrium happens, creating the opportunity for learning. The experience of disequilibrium is both why inexperienced speakers hate presentations and why doing lots of them is important." },
+  { a:"cog", b:"ns",
+    title:"Cognitivism ↔ Neuroscience",
+    text:"The anxiety of public speaking is often exacerbated by excessive self-focus. When attention turns inward, rumination and negative self-talk elevates arousal, which consumes working memory and impairs both performance and learning." },
+  { a:"cog", b:"sct",
+    title:"Cognitivism ↔ Social Cognitive Theory",
+    text:"Self-efficacy determines how working memory is used. A speaker with low self-efficacy allocates attention to their emotional state and judgements about their performance. A speaker with high self-efficacy allocates attention to retrieval and audience cues." },
+  { a:"cog", b:"sc",
+    title:"Cognitivism ↔ Social Constructivism",
+    text:"When the instructor uses regular low-stakes presentations to keep speakers in the just-manageable gap, cognitive load stays in the productive/germane range as abilities grow, because scaffolding is withdrawn at the same rate the speaker’s schema frees up working memory for more learning." },
+  { a:"ns", b:"sct", bow: 90,
+    title:"Neuroscience ↔ Social Cognitive Theory",
+    text:"Physiological arousal is open to interpretation. As speakers build self-efficacy, they learn to reframe autonomic arousal (e.g. elevated heart rate) as excitement rather than anxiety. That shift activates a virtuous cycle across the reciprocal relationship between thoughts, actions, and the environment. Feeling excited leads to dynamic behaviors (smiling, strong eye contact, vocal projection), which leads to greater audience engagement, which in turn validates the speaker’s internal state. Eventually students learn that it’s good to have butterflies. They just need to learn how to keep them flying in formation." },
+  { a:"ns", b:"sc",
+    title:"Neuroscience ↔ Social Constructivism",
+    text:"For speakers, part of being in the just-manageable gap is having their stress level in the just-manageable range. A supportive, low-stakes environment keeps the speakers’ stress levels below the threshold where working memory and consolidation are impaired." },
+  { a:"sct", b:"sc",
+    title:"Social Cognitive Theory ↔ Social Constructivism",
+    text:"A class of similarly skilled and experienced peers gives speakers models within their zone of proximal development, as opposed to polished speakers whose level of skill may not feel attainable. Peer models also provide the speakers with examples of mistakes and recoveries they too are likely to make. Peer feedback clarifies what effective public speaking looks like." }
+];
+
+const triad = {
+  members: ["beh", "ns", "cc"],
+  title: "Behaviourism ↔ Neuroscience ↔ Cognitive Constructivism",
+  text: "Public speaking skill improves with practice, provided the speaker experiences reward signals, but whether a signal is reward or punishment is subjective. Presenting creates disequilibrium for inexperienced speakers, but the resulting physiological arousal can be interpreted as anxiety or excitement, in turn affecting the equilibration process. A low-stakes environment allows the speaker to learn over time that arousal can be interpreted as readiness."
+};
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("map");
+const gEdges = document.getElementById("edges");
+const gNodes = document.getElementById("nodesG");
+const gBtns = document.getElementById("btns");
+const popup = document.getElementById("popup");
+const popupTitle = document.getElementById("popupTitle");
+const popupText = document.getElementById("popupText");
+const wrap = document.getElementById("mapWrap");
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+let openBtn = null;
+
+function closePopup() {
+  popup.style.display = "none";
+  if (openBtn) openBtn.classList.remove("open");
+  openBtn = null;
+  document.querySelectorAll(".edge.active").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".node.active").forEach(x => x.classList.remove("active"));
+}
+
+function openPopup(btnG, item, lines, members, bx, by) {
+  if (openBtn === btnG) { closePopup(); return; }
+  closePopup();
+  openBtn = btnG;
+  btnG.classList.add("open");
+  lines.forEach(l => l.classList.add("active"));
+  members.forEach(id => nodeGroups[id].classList.add("active"));
+  popupTitle.textContent = item.title;
+  popupText.textContent = item.text;
+  popup.style.display = "block";
+
+  const svgRect = svg.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+  const scale = svgRect.width / 1000;
+  const px = (svgRect.left - wrapRect.left) + bx * scale;
+  const py = (svgRect.top - wrapRect.top) + by * scale;
+  const pw = Math.min(380, wrapRect.width - 40);
+  popup.style.width = pw + "px";
+  let left = px - pw / 2;
+  left = Math.max(8, Math.min(left, wrapRect.width - pw - 8));
+  popup.style.left = left + "px";
+  /* place above the button when in lower half of map, below otherwise */
+  if (by > 450) {
+    popup.style.top = "auto";
+    popup.style.bottom = (wrapRect.height - py + 22) + "px";
+  } else {
+    popup.style.bottom = "auto";
+    popup.style.top = (py + 22) + "px";
+  }
+}
+
+function makeButton(bx, by, item, lines, members) {
+  const g = el("g", { class: "btn", tabindex: "0", role: "button" }, gBtns);
+  el("circle", { cx: bx, cy: by, r: 13 }, g);
+  const t = el("text", { x: bx, y: by + 1 }, g);
+  t.textContent = "+";
+  const activate = (ev) => { ev.stopPropagation(); openPopup(g, item, lines, members, bx, by); };
+  g.addEventListener("click", activate);
+  g.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); activate(ev); }
+  });
+}
+
+/* ---- draw pairwise edges ---- */
+edges.forEach(e => {
+  const A = nodes[e.a], B = nodes[e.b];
+  let line, bx, by;
+  if (e.bow) {
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+    const dx = B.x - A.x, dy = B.y - A.y;
+    const len = Math.hypot(dx, dy);
+    const ux = -dy / len, uy = dx / len;           /* unit perpendicular */
+    const cxp = mx + ux * e.bow * 2, cyp = my + uy * e.bow * 2;
+    line = el("path", { class: "edge", d: `M ${A.x} ${A.y} Q ${cxp} ${cyp} ${B.x} ${B.y}` }, gEdges);
+    bx = 0.25 * A.x + 0.5 * cxp + 0.25 * B.x;      /* bezier point at t = 0.5 */
+    by = 0.25 * A.y + 0.5 * cyp + 0.25 * B.y;
+  } else {
+    line = el("line", { class: "edge", x1: A.x, y1: A.y, x2: B.x, y2: B.y }, gEdges);
+    bx = (A.x + B.x) / 2;
+    by = (A.y + B.y) / 2;
+  }
+  e._line = line; e._bx = bx; e._by = by; e._members = [e.a, e.b];
+});
+
+/* ---- draw triad: three lines converging at the centroid ---- */
+const triLines = triad.members.map(id =>
+  el("line", { class: "edge", x1: nodes[id].x, y1: nodes[id].y, x2: TRI.x, y2: TRI.y }, gEdges)
+);
+
+/* ---- draw nodes ---- */
+const nodeGroups = {};
+for (const id in nodes) {
+  const n = nodes[id];
+  const g = el("g", { class: "node" }, gNodes);
+  const w = 200, h = n.label.length > 1 ? 66 : 48;
+  el("rect", { x: n.x - w/2, y: n.y - h/2, width: w, height: h, rx: 14,
+               fill: n.fill, stroke: n.stroke }, g);
+  n.label.forEach((ln, i) => {
+    const t = el("text", { x: n.x, y: n.y + (i - (n.label.length - 1) / 2) * 21 + 6 }, g);
+    t.textContent = ln;
+  });
+  nodeGroups[id] = g;
+}
+
+/* ---- draw buttons (after nodes so they sit on top) ---- */
+edges.forEach(e => makeButton(e._bx, e._by, e, [e._line], e._members));
+makeButton(TRI.x, TRI.y, triad, triLines, triad.members);
+
+document.addEventListener("click", (ev) => {
+  if (!popup.contains(ev.target)) closePopup();
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape") closePopup();
+});
+document.getElementById("popupClose").addEventListener("click", closePopup);
+window.addEventListener("resize", closePopup);
+</script>
+</body>
+</html>
